@@ -59,10 +59,18 @@ Ball.inherit(cocos.nodes.Node, {
         // If moving down then check for collision with the bat
         if (vel.y > 0) {
             if (geom.rectOverlapsRect(ballBox, batBox)) {
-                // Flip Y velocity
-                vel.y *= -1
-                console.log('Hit pad')
-                this.angle = Math.PI*2-Math.asin(vel.y/velocity)
+                if (vel.x > 0) { // Moving right
+                    // Flip Y velocity
+                    vel.y *= -1
+                    console.log('Hit pad moving right')
+                    this.angle = 2*Math.PI - phi
+                }
+                else if (vel.x < 0) { // Moving left
+                    // Flip Y velocity
+                    vel.y *= -1
+                    console.log('Hit pad moving left')
+                    this.angle = 2*Math.PI - phi
+                }
             }
         }
     },
@@ -78,26 +86,48 @@ Ball.inherit(cocos.nodes.Node, {
 
         // Moving left and hit left edge
         if (vel.x < 0 && geom.rectGetMinX(ballBox) < 0) {
-            // Flip X velocity
-            console.log("Hit left edge")
-            vel.x *= -1
-            this.angle = Math.acos(vel.x/velocity)
+            if (vel.y > 0) { // Moving up
+                // Flip X velocity
+                console.log("Moving left/up and hit left edge")
+                vel.x *= -1
+                this.angle = Math.PI - phi
+            }
+            else if (vel.y < 0) { // Moving down
+                // Flip X velocity
+                console.log("Moving left/down and hit left edge")
+                vel.x *= -1
+                this.angle = 3*Math.PI + phi
+            }
         }
 
         // Moving right and hit right edge
         if (vel.x > 0 && geom.rectGetMaxX(ballBox) > winSize.width) {
-            // Flip X velocity
-            vel.x *= -1
-            console.log("Hit right edge, phi: " + phi + " phi2: " + phi2)
-            this.angle = Math.acos(vel.x/velocity)
+            if (vel.y > 0) { // Moving up
+                vel.x *= -1
+                console.log("Moving right/up and hit right edge")
+                this.angle = Math.PI - phi
+            }
+            else if (vel.y < 0) { // Moving down
+                vel.x *= -1
+                console.log("Moving right/down and hit right edge")
+                this.angle = 3*Math.PI + phi
+            }
         }
 
         // Moving up and hit top edge
         if (vel.y < 0 && geom.rectGetMaxY(ballBox) > winSize.height) {
-            // Flip Y velocity
-            console.log("Hit top edge")
-            vel.y *= -1
-            this.angle = Math.PI*2-Math.asin(vel.y/velocity)
+            if (vel.x > 0) { // Moving right
+                // Flip Y velocity
+                console.log("Hit top edge moving right")
+                vel.y *= -1
+                this.angle = 2*Math.PI - phi
+            }
+            else if (vel.x < 0) { // Moving left
+                // Flip Y velocity
+                console.log("Hit top edge moving left")
+                vel.y *= -1
+                this.angle = 2*Math.PI - phi
+            }
         }
 
         // Moving down and hit bottom edge - DEATH
@@ -153,9 +183,9 @@ Ball.inherit(cocos.nodes.Node, {
             vel[axis] *= -1
 
             if (axis == 'y') {
-                this.angle = Math.asin(vel.y/velocity)
+                this.angle = 2*Math.PI - phi
             } else if (axis == 'x') {
-                this.angle = Math.acos(vel.x/velocity)
+                this.angle = 2*Math.PI - phi
             }
         }
 
