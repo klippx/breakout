@@ -14,7 +14,8 @@ function Ball () {
     this.addChild({child: sprite})
     this.contentSize = sprite.contentSize
 
-    this.velocity = new geom.Point(150, 150)
+    this.velocity = 200
+    this.angle    = Math.PI/3
     this.scheduleUpdate()
 }
 
@@ -23,20 +24,20 @@ Ball.inherit(cocos.nodes.Node, {
 
     update: function (dt) {
         var pos = util.copy(this.position),
-            vel = util.copy(this.velocity)
+            vel = util.copy(this.velocity),
+            phi = util.copy(this.angle)
 
         // Test X position
-        if (!this.testBlockCollision('x', dt * vel.x)) {
+        if (!this.testBlockCollision('x', dt * vel * Math.cos(phi))) {
             // Adjust X position
-            pos.x += dt * vel.x
+            pos.x += dt * vel * Math.cos(phi)
             this.position = pos
         }
 
-
         // Test Y position
-        if (!this.testBlockCollision('y', -dt * vel.y)) {
+        if (!this.testBlockCollision('y', -dt * vel * Math.sin(phi))) {
             // Adjust Y position
-            pos.y -= dt * vel.y
+            pos.y -= dt * vel * Math.sin(phi)
             this.position = pos
         }
 
@@ -46,46 +47,57 @@ Ball.inherit(cocos.nodes.Node, {
     },
 
     testBatCollision: function () {
-        var vel = util.copy(this.velocity),
+        var velocity = util.copy(this.velocity),
+            phi      = util.copy(this.angle),
             ballBox = this.boundingBox,
             // The parent of the ball is the Breakout Layer, which has a 'bat'
             // property pointing to the player's bat.
             batBox = this.parent.bat.boundingBox
+
+        vel = new geom.Point(velocity * Math.cos(phi), velocity * Math.sin(phi))
 
         // If moving down then check for collision with the bat
         if (vel.y > 0) {
             if (geom.rectOverlapsRect(ballBox, batBox)) {
                 // Flip Y velocity
                 vel.y *= -1
+                console.log('Hit pad')
+                this.angle = Math.PI*2-Math.asin(vel.y/velocity)
             }
         }
-
-        // Update position and velocity on the ball
-        this.velocity = vel
     },
 
     testEdgeCollision: function () {
-        var vel = util.copy(this.velocity),
-            ballBox = this.boundingBox,
+        var velocity = util.copy(this.velocity),
+            phi      = util.copy(this.angle),
+            ballBox  = this.boundingBox,
             // Get size of canvas
             winSize = cocos.Director.sharedDirector.winSize
 
+        vel = new geom.Point(velocity * Math.cos(phi), velocity * Math.sin(phi))
+
         // Moving left and hit left edge
         if (vel.x < 0 && geom.rectGetMinX(ballBox) < 0) {
-            // Flip Y velocity
+            // Flip X velocity
+            console.log("Hit left edge")
             vel.x *= -1
+            this.angle = Math.acos(vel.x/velocity)
         }
 
         // Moving right and hit right edge
         if (vel.x > 0 && geom.rectGetMaxX(ballBox) > winSize.width) {
             // Flip X velocity
             vel.x *= -1
+            console.log("Hit right edge, phi: " + phi + " phi2: " + phi2)
+            this.angle = Math.acos(vel.x/velocity)
         }
 
         // Moving up and hit top edge
         if (vel.y < 0 && geom.rectGetMaxY(ballBox) > winSize.height) {
-            // Flip X velocity
+            // Flip Y velocity
+            console.log("Hit top edge")
             vel.y *= -1
+            this.angle = Math.PI*2-Math.asin(vel.y/velocity)
         }
 
         // Moving down and hit bottom edge - DEATH
@@ -93,16 +105,16 @@ Ball.inherit(cocos.nodes.Node, {
             // Restart game
             this.parent.restart()
         }
-
-        this.velocity = vel
     },
 
     testBlockCollision: function (axis, dist) {
-
-        var vel = util.copy(this.velocity),
+        var velocity = util.copy(this.velocity),
+            phi = this.angle,
             box = this.boundingBox,
             // A map is made of mulitple layers, but we only have 1.
             mapLayer = this.parent.map.children[0]
+
+        vel = new geom.Point(velocity * Math.cos(phi), velocity * Math.sin(phi))
 
         // Get size of canvas
         var s = cocos.Director.sharedDirector.winSize
@@ -125,8 +137,8 @@ Ball.inherit(cocos.nodes.Node, {
             var point = testPoints[corner]
 
             // All our blocks are 32x16 pixels
-            var tileX = Math.floor(point.x / 32),
-                tileY = Math.floor((s.height - point.y) / 16),
+            var tileX   = Math.floor(point.x / 32),
+                tileY   = Math.floor((s.height - point.y) / 16),
                 tilePos = new geom.Point(tileX, tileY)
 
             // Tile ID 0 is an empty tile, everything else is a hit
@@ -137,19 +149,24 @@ Ball.inherit(cocos.nodes.Node, {
 
         // If we hit something, swap directions
         if (hitBlocks.length > 0) {
+            console.log("Hit a block in " + axis + "-direction")
             vel[axis] *= -1
-        }
 
-        this.velocity = vel
+            if (axis == 'y') {
+                this.angle = Math.asin(vel.y/velocity)
+            } else if (axis == 'x') {
+                this.angle = Math.acos(vel.x/velocity)
+            }
+        }
 
         // Remove the blocks we hit
         for (var i=0; i<hitBlocks.length; i++) {
             mapLayer.removeTile(hitBlocks[i])
         }
 
+        hitBlocks.length > 0 && console.log("Hit " + hitBlocks.length + " bricks.")
         return (hitBlocks.length > 0)
     }
-
 })
 
 module.exports = Ball
