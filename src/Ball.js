@@ -101,7 +101,7 @@ Ball.inherit(cocos.nodes.Node, {
         }
 
         // Moving right and hit right edge
-        if (vel.x > 0 && geom.rectGetMaxX(ballBox) > winSize.width) {
+        else if (vel.x > 0 && geom.rectGetMaxX(ballBox) > winSize.width) {
             if (vel.y > 0) { // Moving up
                 vel.x *= -1
                 console.log("Moving right/up and hit right edge")
@@ -115,7 +115,7 @@ Ball.inherit(cocos.nodes.Node, {
         }
 
         // Moving up and hit top edge
-        if (vel.y < 0 && geom.rectGetMaxY(ballBox) > winSize.height) {
+        else if (vel.y < 0 && geom.rectGetMaxY(ballBox) > winSize.height) {
             if (vel.x > 0) { // Moving right
                 // Flip Y velocity
                 console.log("Hit top edge moving right")
@@ -131,7 +131,7 @@ Ball.inherit(cocos.nodes.Node, {
         }
 
         // Moving down and hit bottom edge - DEATH
-        if (vel.y > 0 && geom.rectGetMaxY(ballBox) < 0) {
+        else if (vel.y > 0 && geom.rectGetMaxY(ballBox) < 0) {
             // Restart game
             this.parent.restart()
         }
@@ -179,13 +179,43 @@ Ball.inherit(cocos.nodes.Node, {
 
         // If we hit something, swap directions
         if (hitBlocks.length > 0) {
-            console.log("Hit a block in " + axis + "-direction")
             vel[axis] *= -1
 
-            if (axis == 'y') {
-                this.angle = 2*Math.PI - phi
-            } else if (axis == 'x') {
-                this.angle = 2*Math.PI - phi
+            if (axis == 'y') { // Should be looked at...
+                if (vel.x > 0 && vel.y > 0) { // Moving up/right
+                    console.log("Hit a block in " + axis + "-direction, moving up/right")
+                    this.angle = 2*Math.PI - phi
+                }
+                else if (vel.x < 0 && vel.y > 0) { // Moving up/left
+                    console.log("Hit a block in " + axis + "-direction, moving up/left")
+                    this.angle = 2*Math.PI - phi
+                }
+                else if (vel.x > 0 && vel.y < 0) { // Moving down/right
+                    console.log("Hit a block in " + axis + "-direction, moving down/right")
+                    this.angle = 2*Math.PI - phi
+                }
+                else if (vel.x < 0 && vel.y < 0) { // Moving down/left
+                    console.log("Hit a block in " + axis + "-direction, moving down/left")
+                    this.angle = 2*Math.PI - phi
+                }
+            }
+            else if (axis == 'x') { // Should be OK...
+                if (vel.x > 0 && vel.y > 0) { // Moving up/right
+                    console.log("Hit a block in " + axis + "-direction, moving up/right")
+                    this.angle = Math.PI - phi
+                }
+                else if (vel.x < 0 && vel.y > 0) { // Moving up/left
+                    console.log("Hit a block in " + axis + "-direction, moving up/left")
+                    this.angle = Math.PI - phi
+                }
+                else if (vel.x > 0 && vel.y < 0) { // Moving down/right
+                    console.log("Hit a block in " + axis + "-direction, moving down/right")
+                    this.angle = 3*Math.PI - phi
+                }
+                else if (vel.x < 0 && vel.y < 0) { // Moving down/left
+                    console.log("Hit a block in " + axis + "-direction, moving down/left")
+                    this.angle = 3*Math.PI - phi
+                }
             }
         }
 
