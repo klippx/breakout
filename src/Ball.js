@@ -27,23 +27,23 @@ Ball.inherit(cocos.nodes.Node, {
             vel = util.copy(this.velocity),
             phi = util.copy(this.angle)
 
+        // Test Edges and bat
+        this.testBatCollision()
+        this.testEdgeCollision()
+
         // Test X position
         if (!this.testBlockCollision('x', dt * vel * Math.cos(phi))) {
             // Adjust X position
             pos.x += dt * vel * Math.cos(phi)
-            this.position = pos
         }
 
         // Test Y position
         if (!this.testBlockCollision('y', -dt * vel * Math.sin(phi))) {
             // Adjust Y position
             pos.y -= dt * vel * Math.sin(phi)
-            this.position = pos
         }
 
-        // Test Edges and bat
-        this.testBatCollision()
-        this.testEdgeCollision()
+        this.position = pos
     },
 
     testBatCollision: function () {
