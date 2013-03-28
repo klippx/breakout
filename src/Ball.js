@@ -14,8 +14,8 @@ function Ball () {
     this.addChild({child: sprite})
     this.contentSize = sprite.contentSize
 
-    this.velocity = 200
-    this.angle    = Math.PI/3
+    this.velocity = 300
+    this.angle    = Math.PI/4
     this.scheduleUpdate()
 }
 

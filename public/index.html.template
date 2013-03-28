@@ -28,7 +28,7 @@
     </head>
     <body>
         <h1>Breakout</h1>
-        <div class="cocos2d-app">
+        <div class="cocos2d-app" style="cursor: none;">
             Loading Breakout...
             ${scripts}
         </div>
